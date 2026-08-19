@@ -1,0 +1,59 @@
+{% load static %}
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}KOMA — citations manga{% endblock %}</title>
+    <meta
+      name="description"
+      content="Citations de manga et anime — recherchables par personnage, série ou thème. API REST incluse."
+    />
+    <link rel="icon" type="image/svg+xml" href="{% static 'favicon.svg' %}" />
+    <!--
+      Applique le thème et la langue des citations AVANT le chargement de la
+      feuille de style, pour éviter un flash de contenu au mauvais thème
+      (FOUC) le temps que preferences.js s'exécute.
+    -->
+    <script>
+      (function () {
+        var theme =
+          localStorage.getItem("koma-theme") ||
+          (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.dataset.quoteLang = localStorage.getItem("koma-lang") || "fr";
+      })();
+    </script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a href="{% url 'quotes:home' %}" class="wordmark">
+        KOMA
+        <span class="wordmark-sub">コマ · citations manga</span>
+      </a>
+      <nav class="site-nav">
+        <a href="{% url 'quotes:browse' %}">Parcourir</a>
+        <a href="/api/quotes/" class="stamp-link">API</a>
+      </nav>
+      <div class="prefs">
+        <button type="button" id="lang-toggle" class="prefs-btn" aria-label="Changer la langue des citations"></button>
+        <button type="button" id="theme-toggle" class="prefs-btn" aria-label="Changer de thème"></button>
+      </div>
+    </header>
+
+    <main>{% block content %}{% endblock %}</main>
+
+    <footer class="site-footer">
+      <p>
+        KOMA (コマ) désigne une case de manga. Projet personnel — citations attribuées à leurs
+        personnages et séries d'origine, à des fins non commerciales.
+      </p>
+    </footer>
+
+    <script src="{% static 'js/preferences.js' %}"></script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

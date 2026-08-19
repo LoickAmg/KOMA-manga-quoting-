@@ -1,0 +1,489 @@
+/*
+ * Direction : "carnet de scan" — papier + encre + un seul tampon rouge.
+ * Volontairement à l'opposé du template "app anime" habituel : pas de
+ * dégradé, pas d'ombre portée, pas d'angle arrondi, pas de logo illustré,
+ * pas de grille de cartes. Des colonnes, des filets, du texte.
+ */
+
+/*
+ * Polices auto-hébergées (fichiers dans static/fonts/, sous-ensemble latin
+ * uniquement) plutôt que chargées depuis Google Fonts : pas de dépendance
+ * réseau externe au chargement de la page, et un seul poids par usage réel
+ * (400/600 pour la citation, 400/700 pour l'interface) pour rester léger.
+ */
+@font-face {
+  font-family: "Shippori Mincho";
+  src: url("../fonts/shippori-mincho-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Shippori Mincho";
+  src: url("../fonts/shippori-mincho-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../fonts/jetbrains-mono-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --paper: #f2ede3;
+  --paper-2: #eae2d0;
+  --ink: #17140f;
+  --ink-soft: #55503f;
+  --seal: #a72a26;
+  --seal-soft: rgba(167, 42, 38, 0.08);
+  --rule: rgba(23, 20, 15, 0.18);
+
+  --font-display: "Shippori Mincho", "Noto Serif", Georgia, "Times New Roman", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+/*
+ * Mode sombre : même carnet, à la lumière d'une lampe plutôt qu'au jour —
+ * pas un thème "app" à part avec ses propres accents, juste l'inverse
+ * papier/encre. Comme tout le reste du fichier utilise déjà ces variables,
+ * ce seul bloc suffit à re-théminer toute l'interface.
+ */
+:root[data-theme="dark"] {
+  --paper: #17140f;
+  --paper-2: #201c14;
+  --ink: #ece6d6;
+  --ink-soft: #a89f89;
+  --seal: #e2564f;
+  --seal-soft: rgba(226, 86, 79, 0.14);
+  --rule: rgba(236, 230, 214, 0.16);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: light;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+a {
+  color: inherit;
+}
+
+/* ---------- header ---------- */
+
+.site-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.wordmark {
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.28em;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.wordmark-sub {
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.site-nav {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.site-nav a {
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 0.15rem;
+}
+
+.site-nav a:hover {
+  border-bottom-color: var(--ink);
+}
+
+.site-nav .stamp-link {
+  color: var(--seal);
+}
+
+.prefs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.prefs-btn {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1px solid var(--rule);
+  padding: 0.3rem 0.55rem;
+  cursor: pointer;
+}
+
+.prefs-btn:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+/* ---------- bilingue (EN texte source / FR traduction) ---------- */
+
+/*
+ * Chaque citation qui a une traduction porte deux blocs, un par langue,
+ * marqués via data-quote-text. Le choix de langue actif est stocké sur
+ * <html data-quote-lang="fr|en"> (voir js/preferences.js) ; ces deux règles
+ * masquent celui qui ne correspond pas. Une citation sans traduction (pas
+ * de bloc "fr" du tout) reste toujours visible, quel que soit le réglage.
+ */
+html[data-quote-lang="fr"] [data-quote-text="en"] {
+  display: none;
+}
+
+html[data-quote-lang="en"] [data-quote-text="fr"] {
+  display: none;
+}
+
+.translation-note {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+/* ---------- layout ---------- */
+
+main {
+  flex: 1;
+  width: min(760px, 100%);
+  margin: 0 auto;
+  padding: 2.5rem 2rem 4rem;
+}
+
+.site-footer {
+  border-top: 1px solid var(--rule);
+  padding: 1.25rem 2rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+/* ---------- hero / quote panel ---------- */
+
+.hero-panel,
+.detail-panel {
+  border: 1px solid var(--ink);
+  padding: 3rem 2.5rem;
+  position: relative;
+}
+
+.hero-mark {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  color: var(--seal);
+  margin: 0 0 -1.5rem -0.5rem;
+  line-height: 1;
+}
+
+.hero-quote {
+  margin: 0;
+}
+
+.hero-quote p {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 4vw, 2.4rem);
+  font-weight: 600;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.hero-meta {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 1.25rem;
+  font-size: 0.85rem;
+}
+
+.meta-character {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.meta-series::before {
+  content: "· ";
+  color: var(--ink-soft);
+}
+
+.meta-source {
+  color: var(--ink-soft);
+}
+
+.hero-actions {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.stamp-btn {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  background: transparent;
+  color: var(--seal);
+  border: 2px solid var(--seal);
+  padding: 0.6rem 1.1rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.stamp-btn:hover {
+  background: var(--seal);
+  color: var(--paper);
+}
+
+.link-underline {
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink);
+  font-size: 0.85rem;
+  padding-bottom: 0.1rem;
+}
+
+.api-hint {
+  margin-top: 1.5rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.api-hint a {
+  color: var(--seal);
+}
+
+/* ---------- browse / filters ---------- */
+
+.filter-bar {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.filter-bar input[type="search"] {
+  flex: 1 1 220px;
+}
+
+.filter-bar input,
+.filter-bar select,
+.filter-bar button {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  padding: 0.55rem 0.75rem;
+}
+
+.filter-bar button {
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.filter-bar button:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.result-count {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  margin: 0 0 1rem;
+}
+
+/* ---------- quote index (browse list) ---------- */
+
+.quote-index {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--rule);
+}
+
+.quote-row {
+  border-bottom: 1px solid var(--rule);
+}
+
+.quote-row-link {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 1rem 0.25rem;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.quote-row-link:hover {
+  background: var(--seal-soft);
+}
+
+.quote-row-link:hover .row-index {
+  color: var(--seal);
+}
+
+.row-index {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+
+.row-text {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.row-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.row-character {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.empty-state {
+  padding: 2rem 0.25rem;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 2rem;
+  font-size: 0.8rem;
+}
+
+.pagination a {
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink);
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 620px) {
+  .site-header {
+    padding: 1.25rem 1.25rem;
+  }
+
+  main {
+    padding: 1.75rem 1.25rem 3rem;
+  }
+
+  .hero-panel,
+  .detail-panel {
+    padding: 2rem 1.25rem;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+  }
+
+  .filter-bar input,
+  .filter-bar select,
+  .filter-bar button,
+  .filter-bar input[type="search"] {
+    /* flex-basis (220px) s'appliquerait à la hauteur une fois l'axe
+       principal vertical (.filter-bar en colonne ci-dessus) — flex:none
+       neutralise ça, sinon le champ de recherche devient démesurément haut.
+       Le sélecteur input[type="search"] est répété ici car la règle de
+       base (`.filter-bar input[type="search"] { flex: 1 1 220px }`) a une
+       spécificité plus élevée qu'un simple `.filter-bar input` : sans ce
+       doublon, cette media query perdrait silencieusement face à la règle
+       de base malgré son ordre plus tardif dans le fichier. */
+    flex: none;
+    width: 100%;
+  }
+
+  .quote-row-link {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+  }
+
+  .row-meta {
+    align-items: flex-start;
+    text-align: left;
+  }
+}

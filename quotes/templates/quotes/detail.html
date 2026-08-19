@@ -1,0 +1,40 @@
+{% extends "quotes/base.html" %} {% load static %} {% block title %}
+  {{ quote.character }} — {{ quote.series }} · KOMA
+{% endblock %} {% block content %}
+  <article class="detail-panel">
+    <p class="hero-mark" aria-hidden="true">「</p>
+    <blockquote class="hero-quote">
+      {% if quote.text_fr %}
+        <p data-quote-text="fr">{{ quote.text_fr }}</p>
+        <p data-quote-text="en">{{ quote.text }}</p>
+        {% if quote.fr_origin == "assisted" %}
+          <span class="translation-note" data-quote-text="fr">traduction assistée, non vérifiée</span>
+        {% endif %}
+      {% else %}
+        <p>{{ quote.text }}</p>
+      {% endif %}
+    </blockquote>
+    <div class="hero-meta">
+      <span class="meta-character">{{ quote.character }}</span>
+      <span class="meta-series">{{ quote.series }}</span>
+      {% if quote.source %}<span class="meta-source">{{ quote.source }}</span>{% endif %}
+    </div>
+    <div class="hero-actions">
+      <button
+        type="button"
+        class="stamp-btn"
+        id="copy-btn"
+        data-text="{{ quote.text }} — {{ quote.character }}, {{ quote.series }}"
+        {% if quote.text_fr %}data-text-fr="{{ quote.text_fr }} — {{ quote.character }}, {{ quote.series }}"{% endif %}
+      >
+        copier
+      </button>
+      <a href="{% url 'quotes:browse' %}" class="link-underline">← Retour au parcours</a>
+    </div>
+    <p class="api-hint">
+      JSON : <a href="/api/quotes/{{ quote.pk }}/">/api/quotes/{{ quote.pk }}/</a>
+    </p>
+  </article>
+{% endblock %} {% block scripts %}
+  <script src="{% static 'js/copy.js' %}"></script>
+{% endblock %}

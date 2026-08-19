@@ -1,0 +1,68 @@
+{% extends "quotes/base.html" %} {% block title %}Parcourir — KOMA{% endblock %} {% block content %}
+  <section class="browse">
+    <form method="get" class="filter-bar" id="filter-form">
+      <input
+        type="search"
+        name="q"
+        value="{{ current_q }}"
+        placeholder="Chercher un mot, un personnage, une série…"
+        aria-label="Recherche"
+      />
+      <select name="series" aria-label="Série">
+        <option value="">Toutes les séries</option>
+        {% for s in all_series %}
+          <option value="{{ s }}" {% if s == current_series %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+      <select name="theme" aria-label="Thème">
+        <option value="">Tous les thèmes</option>
+        {% for value, label in themes %}
+          <option value="{{ value }}" {% if value == current_theme %}selected{% endif %}>
+            {{ label }}
+          </option>
+        {% endfor %}
+      </select>
+      <button type="submit">Filtrer</button>
+    </form>
+
+    <p class="result-count" id="result-count">
+      {{ page_obj.paginator.count }} citation{{ page_obj.paginator.count|pluralize }}
+    </p>
+
+    <ol class="quote-index" id="quote-index" start="{{ page_obj.start_index }}">
+      {% for quote in page_obj %}
+        <li class="quote-row">
+          <a href="{% url 'quotes:detail' quote.pk %}" class="quote-row-link">
+            <span class="row-index">{{ forloop.counter0|add:page_obj.start_index }}</span>
+            <span class="row-text">
+              {% if quote.text_fr %}
+                <span data-quote-text="fr">{{ quote.text_fr|truncatewords:22 }}</span>
+                <span data-quote-text="en">{{ quote.text|truncatewords:22 }}</span>
+              {% else %}
+                {{ quote.text|truncatewords:22 }}
+              {% endif %}
+            </span>
+            <span class="row-meta">
+              <span class="row-character">{{ quote.character }}</span>
+              <span class="row-series">{{ quote.series }}</span>
+            </span>
+          </a>
+        </li>
+      {% empty %}
+        <li class="empty-state">Aucune citation ne correspond à ces filtres.</li>
+      {% endfor %}
+    </ol>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+      <nav class="pagination" aria-label="Pagination">
+        {% if page_obj.has_previous %}
+          <a href="?{{ base_query }}&page={{ page_obj.previous_page_number }}">← Précédent</a>
+        {% endif %}
+        <span>Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+          <a href="?{{ base_query }}&page={{ page_obj.next_page_number }}">Suivant →</a>
+        {% endif %}
+      </nav>
+    {% endif %}
+  </section>
+{% endblock %}
