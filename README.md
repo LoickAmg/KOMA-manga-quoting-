@@ -162,3 +162,9 @@ sur des séries très documentées comme Dragon Ball). Plutôt que d'importer ce
 diffuser de fausses citations, l'extension au-delà des 34 initiales a été faite à la main, une
 par une, en ne gardant que celles dont l'authenticité et l'attribution semblaient fiables — d'où
 un total plus modeste mais qui garde le même niveau de confiance que le lot de départ.
+
+## Provenance, droits et retrait
+
+Les citations, noms de personnages, titres de séries et traductions peuvent relever de droits détenus par leurs auteurs, éditeurs ou ayants droit. Le projet ne revendique pas la propriété de ces éléments et les présente dans un cadre personnel et non commercial. Le champ `source` doit rester renseigné uniquement lorsqu’une référence vérifiable est disponible ; il ne faut pas inventer de chapitre ou d’épisode pour compléter une fiche.
+
+Avant toute publication publique, ajouter pour chaque entrée une provenance vérifiable, une date de vérification et, lorsque nécessaire, une attribution. Une demande de retrait ou de correction doit pouvoir être traitée en supprimant ou corrigeant l’entrée concernée sans casser l’API. Les traductions assistées restent explicitement non officielles et ne doivent pas être présentées comme des sous-titres ou doublages autorisés.
